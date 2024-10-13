@@ -16,8 +16,16 @@ OBJS_DIR = objects/
 
 SRCS_NAME =		minishell.c \
 				functions/ctrl_d.c \
-				tokenization/token_utils.c \
-				tokenization/tokenization.c \
+				functions/dollar.c \
+				functions/cd.c \
+				functions/pwd.c \
+				functions/ft_execve.c \
+				functions/echo.c \
+				functions/env.c \
+				functions_utils/duplicate_env.c \
+				functions_utils/cd_utils.c \
+				functions_utils/utils_dollar.c \
+				jamanakavor/jamanakavor.c \
 				utils/utils.c
 
 OBJS = $(addprefix $(OBJS_DIR), $(OBJS_NAME))
@@ -30,9 +38,10 @@ $(NAME): $(OBJS)
 
 $(OBJS_DIR)%.o: $(SRCS_DIR)%.c $(HEADERS) Makefile
 	@mkdir -p $(OBJS_DIR)
-	@mkdir -p $(OBJS_DIR)/tokenization
 	@mkdir -p $(OBJS_DIR)/utils
 	@mkdir -p $(OBJS_DIR)/functions
+	@mkdir -p $(OBJS_DIR)/jamanakavor
+	@mkdir -p $(OBJS_DIR)/functions_utils
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
 $(LIBS_DIR)/$(READLINE):

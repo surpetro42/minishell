@@ -31,7 +31,7 @@ PACKAGE_TARNAME = readline
 srcdir = .
 
 top_srcdir = .
-BUILD_DIR = /Users/surpetro/Desktop/Minishell/libraries/readline-8.2
+BUILD_DIR = /Users/surpetro/Desktop/builtins_minishel/libraries/readline-8.2
 
 INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL}
@@ -48,7 +48,7 @@ MV = mv
 
 SHELL = /bin/sh
 
-prefix = /Users/surpetro/Desktop/Minishell/libraries/readline
+prefix = /Users/surpetro/Desktop/builtins_minishel/libraries/readline
 exec_prefix = ${prefix}
 
 datarootdir = ${prefix}/share

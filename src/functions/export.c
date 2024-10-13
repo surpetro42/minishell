@@ -1,22 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ctrl_d.c                                           :+:      :+:    :+:   */
+/*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/30 16:52:36 by surpetro          #+#    #+#             */
-/*   Updated: 2024/10/07 19:01:40 by surpetro         ###   ########.fr       */
+/*   Created: 2024/10/07 22:19:45 by surpetro          #+#    #+#             */
+/*   Updated: 2024/10/08 16:12:12 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+// #include "../../includes/minishell.h"
 
-void	ctrl_d(char *str, utils_t *utils)
-{
-	if (str == NULL)
-	{
-		free(utils);
-		exit(write(1, "exit\n", 5));
-	}
-}
+// void	export_f(utils_t *utils)
+// {
+// 	t_duplicate_env *env;
+// 	t_duplicate_env *start;
+
+// 	env = utils->shell->duplicate_env;
+
+// 	while (env)
+// 	{
+		
+// 	}
+// }

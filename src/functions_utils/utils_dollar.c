@@ -1,22 +1,43 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ctrl_d.c                                           :+:      :+:    :+:   */
+/*   utils_dollar.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/30 16:52:36 by surpetro          #+#    #+#             */
-/*   Updated: 2024/10/07 19:01:40 by surpetro         ###   ########.fr       */
+/*   Created: 2024/09/27 15:13:15 by surpetro          #+#    #+#             */
+/*   Updated: 2024/10/11 16:11:22 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-void	ctrl_d(char *str, utils_t *utils)
+char	*ft_strndup(char *s1)
 {
-	if (str == NULL)
+	int		i;
+	int		x;
+	char	*m;
+
+	i = 0;
+	x = 0;
+	if(s1[i] == '$')
+		i++;
+	while (s1[x])
 	{
-		free(utils);
-		exit(write(1, "exit\n", 5));
+		if(s1[x] == '$')
+			break;
+		x++;
 	}
+	i = 0;
+	m = (char *)malloc(x + 1);
+	if (m == NULL)
+		return (NULL);
+	while (i < x)
+	{
+		m[i] = s1[i];
+		++i;
+	}
+	if (i == x)
+		m[i] = '\0';
+	return (m);
 }

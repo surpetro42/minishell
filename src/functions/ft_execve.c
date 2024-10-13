@@ -1,22 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ctrl_d.c                                           :+:      :+:    :+:   */
+/*   ft_execve.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/30 16:52:36 by surpetro          #+#    #+#             */
-/*   Updated: 2024/10/07 19:01:40 by surpetro         ###   ########.fr       */
+/*   Created: 2024/09/21 17:41:00 by surpetro          #+#    #+#             */
+/*   Updated: 2024/09/22 20:09:56 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+// #include "../../includes/minishell.h"
 
-void	ctrl_d(char *str, utils_t *utils)
-{
-	if (str == NULL)
-	{
-		free(utils);
-		exit(write(1, "exit\n", 5));
-	}
-}
+// void search_key(t_shell *shell)
+// {
+// 	int i = 0;
+// 	int l = 0;
+// 	char *str;
+	
+// }
+
+// void	ft_execve(t_shell *shell, char **env)
+// {
+// 	search_key(shell);
+// 	execve(, , env);
+// }
