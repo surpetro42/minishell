@@ -1,61 +1,98 @@
-NAME = minishell
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/09/16 12:29:06 by ayeganya          #+#    #+#              #
+#    Updated: 2024/11/19 22:36:12 by surpetro         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-READLINE = readline
+
+# Compiler and compiler CFLAGS
 CC = cc
+CFLAGS = -Wall -Werror -Wextra  -fsanitize=address #-g -O0
+RLLIBFLAGS = -Ireadline/include -Lreadline/lib -lreadline -lhistory
 
-INC_DIRS = -I./includes -I./$(LIBS_DIR)/$(READLINE)/include
-CFLAGS = -Wall -Wextra -Werror $(INC_DIRS) -g3 -fsanitize=address
-LIBS_DIR = libraries
-READLINE_LIB_PATH = $(LIBS_DIR)/readline/lib
+# Header files
+H_FILE = minishel.h
 
-HEADERS = 	includes/minishell.h \
+#Readline
+READLINE_DIR = readline-8.2
+RL = readline
+lib_path := "$(shell pwd)/readline"
 
-SRCS_DIR = src/
+#Source files
+SRC_FILES = init.c builtins_minishel/src/functions/dollar.c \
+			builtins_minishel/src/functions_utils/dollar_utils.c \
+			builtins_minishel/src/functions_utils/cd_utils.c \
+			builtins_minishel/src/functions_utils/export_utils_0.c \
+			builtins_minishel/src/functions_utils/export_utils_1.c \
+			builtins_minishel/src/functions_utils/export_utils_2.c \
+			builtins_minishel/src/functions_utils/export_utils_3.c \
+			builtins_minishel/src/functions/echo.c \
+			builtins_minishel/src/functions/cd.c \
+			builtins_minishel/src/functions/export.c \
+			builtins_minishel/src/functions/env.c \
+			builtins_minishel/src/functions/unset.c \
+			builtins_minishel/src/functions/pwd.c \
+			builtins_minishel/src/env/duplicate_env.c
+#B_SRC_FILES =
 
-OBJS_DIR = objects/
+OBJ_FILES = $(SRC_FILES:%.c=%.o)
 
-SRCS_NAME =		minishell.c \
-				functions/ctrl_d.c \
-				functions/dollar.c \
-				functions/cd.c \
-				functions/pwd.c \
-				functions/ft_execve.c \
-				functions/echo.c \
-				functions/env.c \
-				functions_utils/duplicate_env.c \
-				functions_utils/cd_utils.c \
-				functions_utils/utils_dollar.c \
-				jamanakavor/jamanakavor.c \
-				utils/utils.c
+#Libft
+LIBFT_DIR = ./libft
+LIBFT_A = $(LIBFT_DIR)/libft.a
 
-OBJS = $(addprefix $(OBJS_DIR), $(OBJS_NAME))
-OBJS_NAME = $(SRCS_NAME:.c=.o)
+#Target
+NAME  = minishell
+BONUS = minishell
 
-all: $(LIBS_DIR)/$(READLINE) $(NAME)
+all: $(LIBFT_A) $(RL) $(NAME)
 
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ -l$(READLINE) -L$(READLINE_LIB_PATH)
+$(NAME): $(OBJ_FILES) $(H_FILE)
+	$(CC) $(CFLAGS) $(RLLIBFLAGS) $(OBJ_FILES) $(LIBFT_A) -o $@
 
-$(OBJS_DIR)%.o: $(SRCS_DIR)%.c $(HEADERS) Makefile
-	@mkdir -p $(OBJS_DIR)
-	@mkdir -p $(OBJS_DIR)/utils
-	@mkdir -p $(OBJS_DIR)/functions
-	@mkdir -p $(OBJS_DIR)/jamanakavor
-	@mkdir -p $(OBJS_DIR)/functions_utils
-	$(CC) $(CFLAGS) -c $< -o $@ 
+#Object target
+%.o: %.c Makefile $(H_FILE)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(LIBS_DIR)/$(READLINE):
-	./$(LIBS_DIR)/config_readline readline
+#Readline libraries compilation
+$(RL):
+	mkdir readline
+	cd $(READLINE_DIR) && ./configure --prefix=$(lib_path) && make && make install
 
+#Libft target
+$(LIBFT_A):
+	$(MAKE) -C $(LIBFT_DIR)
+
+
+bonus: $(LIBFT_A) $(NAME)
+
+#cleaning targets
 clean:
-	@$(RM) $(OBJS)
+	rm -f $(OBJ_FILES)
+	$(MAKE) -C $(LIBFT_DIR) clean
+	$(MAKE) -C $(READLINE_DIR) clean
 
 fclean: clean
-	@$(RM) $(NAME)
-	rm -rf $(LIBS_DIR)/$(READLINE)
-	rm -rf $(OBJS_DIR)
-	make clean -C $(LIBS_DIR)/readline-8.2
+	rm -f $(NAME)
+	$(MAKE) -C $(LIBFT_DIR) fclean
+	$(MAKE) -C $(READLINE_DIR) distclean
+	rm -rf readline
 
 re: fclean all
 
-.PHONY: all clean fclean re
+lclean:
+	rm -f $(OBJ_FILES)
+	rm -f $(NAME)
+	$(MAKE) -C $(LIBFT_DIR) fclean
+	$(MAKE) -C $(READLINE_DIR) clean
+
+
+rf: lclean $(NAME)
+
+.PHONY: all clean fclean re rf lclean
