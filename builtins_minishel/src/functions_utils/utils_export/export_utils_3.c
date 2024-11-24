@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 21:57:25 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/22 16:11:35 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/11/24 22:41:12 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,17 +77,18 @@ void	handle_logic(t_var_export *var, t_duplicate_env **env,
 	}
 }
 
-void	arr_string_element(char *str, t_duplicate_env **env,
+int	arr_string_element(char *str, t_duplicate_env **env,
 	t_duplicate_env **last)
 {
 	t_var_export	var;
 
 	var.findel = find_before_equal(str);
 	if (var.findel == 0)
-		return ;
+		return (0);
 	if (process_string(str, &var) == 0)
-		return ;
+		return (0);
 	handle_logic(&var, env, last);
 	free(var.buff_key);
 	free(var.buff_vlaue);
+	return (1);
 }

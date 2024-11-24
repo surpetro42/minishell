@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 12:52:25 by ayeganya          #+#    #+#             */
-/*   Updated: 2024/11/24 21:22:45 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/11/24 22:40:29 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,9 +235,8 @@ void			add_to_list(t_duplicate_env **env,
 	t_duplicate_env **last, t_duplicate_env *node);
 void			handle_logic(t_var_export *var, t_duplicate_env **env,
 	t_duplicate_env **last);
-void			arr_string_element(char *str, t_duplicate_env **env,
+int				arr_string_element(char *str, t_duplicate_env **env,
 	t_duplicate_env **last);
-
 
 
 

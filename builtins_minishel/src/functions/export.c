@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/07 22:19:45 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/24 22:00:01 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/11/24 22:44:53 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ void	input_export(t_duplicate_env *env, char **str)
 
 	while (str[i])
 	{
-		arr_string_element(str[i], &start, &last);
+		if(arr_string_element(str[i], &start, &last) == 0)
+			printf("minishell: export: `%s': not a valid identifier\n", str[i]);
 		i++;
 	}
 	env = start;
