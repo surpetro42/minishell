@@ -6,12 +6,11 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 21:57:25 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/19 23:26:32 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/11/22 16:11:35 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../minishel.h"
-
+#include "../../../../minishel.h"
 t_duplicate_env	*create_new_node(char *key, char *value, int type)
 {
 	t_duplicate_env	*new_node;
@@ -86,7 +85,7 @@ void	arr_string_element(char *str, t_duplicate_env **env,
 	var.findel = find_before_equal(str);
 	if (var.findel == 0)
 		return ;
-	if (!process_string(str, &var))
+	if (process_string(str, &var) == 0)
 		return ;
 	handle_logic(&var, env, last);
 	free(var.buff_key);

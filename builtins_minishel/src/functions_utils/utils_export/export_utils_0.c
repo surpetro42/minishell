@@ -6,11 +6,11 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 21:57:25 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/18 16:05:33 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/11/22 18:04:13 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../minishel.h"
+#include "../../../../minishel.h"
 
 int	validation_symble_variable(char *s)
 {
@@ -18,17 +18,16 @@ int	validation_symble_variable(char *s)
 	int	len;
 
 	i = 0;
-	len = ft_strlen(s);
+	len = ft_strlen(s) - 1;
 	if ((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' && s[i] <= 'Z')
 		|| s[i] == '_' )
 	{
-		while (s[++i])
+		while (s[++i] && s[i] != '=')
 		{
-			if ((s[len] == '=' && s[i] == '=' && len == i)
-				&& !((s[i] >= 'a' && s[i] <= 'z')
+			if (!((s[i] >= 'a' && s[i] <= 'z')
 					|| (s[i] >= 'A' && s[i] <= 'Z')
 					|| (s[i] >= '0' && s[i] <= '9') || s[i] == '_'))
-				return (0);
+				return (0); 
 		}
 	}
 	else

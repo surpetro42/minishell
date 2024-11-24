@@ -6,16 +6,11 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 21:57:25 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/19 23:41:01 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/11/24 22:00:41 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../minishel.h"
-
-// void check_typ(t_duplicate_env env)
-// {
-	
-// }
+#include "../../../../minishel.h"
 
 int	checking_existence_variable(t_duplicate_env *env,
 	char *buff_key, char *buff_vlaue)
@@ -34,7 +29,6 @@ int	checking_existence_variable(t_duplicate_env *env,
 		if (ft_strcmp(buff, last->key) == 0)
 		{
 			exists = 1;
-			// check_typ(last-);
 			if(last->type == 0)
 			{
 				last->type = 1;
@@ -88,14 +82,15 @@ static t_export	*create_export_node(t_duplicate_env *dup_env)
 	new_node->key = ft_strdup(dup_env->key);
 	new_node->value = (dup_env->value != NULL) ? ft_strdup(dup_env->value) : NULL;
 	new_node->next = NULL;
+
 	return (new_node);
 }
 
 void	add_enviorment(t_shell *shell)
 {
-	t_duplicate_env *start;
-	t_export *iter;
-	t_export start1;
+	t_duplicate_env	*start;
+	t_export		*iter;
+	t_export		start1;
 
 	start = shell->duplicate_env;
 	iter = &start1;
@@ -110,4 +105,5 @@ void	add_enviorment(t_shell *shell)
 	iter->next = NULL;
 	shell->duplicate_env = start;
 	shell->input_export = start1.next;
+	
 }

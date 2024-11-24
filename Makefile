@@ -6,7 +6,7 @@
 #    By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/16 12:29:06 by ayeganya          #+#    #+#              #
-#    Updated: 2024/11/19 22:36:12 by surpetro         ###   ########.fr        #
+#    Updated: 2024/11/24 17:23:28 by surpetro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,18 +26,21 @@ lib_path := "$(shell pwd)/readline"
 
 #Source files
 SRC_FILES = init.c builtins_minishel/src/functions/dollar.c \
-			builtins_minishel/src/functions_utils/dollar_utils.c \
+			builtins_minishel/src/functions_utils/utils_dollar/dollar_utils_0.c \
+			builtins_minishel/src/functions_utils/utils_dollar/dollar_utils_1.c \
+			builtins_minishel/src/functions_utils/utils_dollar/dollar_utils_2.c \
+			builtins_minishel/src/functions_utils/utils_export/export_utils_0.c \
+			builtins_minishel/src/functions_utils/utils_export/export_utils_1.c \
+			builtins_minishel/src/functions_utils/utils_export/export_utils_2.c \
+			builtins_minishel/src/functions_utils/utils_export/export_utils_3.c \
 			builtins_minishel/src/functions_utils/cd_utils.c \
-			builtins_minishel/src/functions_utils/export_utils_0.c \
-			builtins_minishel/src/functions_utils/export_utils_1.c \
-			builtins_minishel/src/functions_utils/export_utils_2.c \
-			builtins_minishel/src/functions_utils/export_utils_3.c \
 			builtins_minishel/src/functions/echo.c \
 			builtins_minishel/src/functions/cd.c \
 			builtins_minishel/src/functions/export.c \
 			builtins_minishel/src/functions/env.c \
 			builtins_minishel/src/functions/unset.c \
 			builtins_minishel/src/functions/pwd.c \
+			builtins_minishel/src/free_builtins/free_dollar.c \
 			builtins_minishel/src/env/duplicate_env.c
 #B_SRC_FILES =
 

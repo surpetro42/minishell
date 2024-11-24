@@ -6,11 +6,11 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 21:57:25 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/19 23:06:23 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/11/20 19:26:15 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../minishel.h"
+#include "../../../../minishel.h"
 
 int	ft_env_elem_size(t_export *begin_list)
 {

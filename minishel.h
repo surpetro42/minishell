@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 12:52:25 by ayeganya          #+#    #+#             */
-/*   Updated: 2024/11/19 23:03:02 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/11/24 21:22:45 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,8 +123,6 @@ void	cleaner(block_t **block_arr, utils_t *utils);
 //This function should be called before exit to clean up all resources
 void	full_clean(block_t *block_arr, utils_t *utils);
 
-
-
 # define STRING 0
 # define PIPE 1 // |
 # define OUTPUT_REDIRECTION 2 // >
@@ -148,14 +146,6 @@ typedef struct s_duplicate_env
 	struct s_duplicate_env	*next;
 } t_duplicate_env;
 
-
-typedef struct s_shell
-{
-	char			**str;
-	t_duplicate_env	*duplicate_env;
-	t_export	*input_export;
-} t_shell;
-
 typedef struct s_var_export
 {
 	t_duplicate_env	*new_node;
@@ -166,6 +156,25 @@ typedef struct s_var_export
 
 } t_var_export;
 
+typedef struct s_var_dollar
+{
+	char	*s1_before;
+	char	*s2_key;
+	char	*s3_after;
+	char	*res_line_key;
+	char	*res_1;
+	char	*buff;
+	
+} t_var_dollar;
+
+typedef struct s_shell
+
+{
+	char			**str;
+	t_duplicate_env	*duplicate_env;
+	t_export		*input_export;
+	t_var_export	*var;
+} t_shell;
 
 /* ------------------------ functions ------------------------ */
 void	pwd(utils_t *utils);
@@ -185,12 +194,27 @@ void			changes_env(t_duplicate_env **env, char *cwd);
 int				access_directory(char *s);
 char			*home(t_duplicate_env *env);
 int				check_directory(char *s);
-char			*ft_strndup(char *s1);
 char			*ft_strtrim(const char *s1, const char *set);
 int				find(char *s);
 char			**ft_split_export(char const *s, char c);
 char			**ft_split(char const *s, char c);
 char			*old_environment(t_duplicate_env *env);
+
+
+//			dollar
+				//utils_dollar_0
+char			*ft_strndup(char *s1);
+int				dollar_validation(char *s);
+char			*completion_status(char *str, int last_exit_status);
+				//utils_dollar_1
+char			*before_dollar(char *str);
+char			*key(char *str);
+char			*after(char *str);
+
+				//utils_dollar_2
+char			*variable(char *str);
+char			*remains(char *key);
+int				valid_remains_line(char *str);
 
 //			export
 int				validation_equal_variable(char *s);
@@ -211,11 +235,15 @@ void			add_to_list(t_duplicate_env **env,
 	t_duplicate_env **last, t_duplicate_env *node);
 void			handle_logic(t_var_export *var, t_duplicate_env **env,
 	t_duplicate_env **last);
-void	arr_string_element(char *str, t_duplicate_env **env,
+void			arr_string_element(char *str, t_duplicate_env **env,
 	t_duplicate_env **last);
-/* ------------------------ jamankavor ------------------------ */
-char	**ft_split(char const *s, char c);
-int		ft_strcmp_space(char *s1, char *s2);
+
+
+
+
+	
+/* ------------------------ free_builtins ------------------------ */
+// void			free_dollar(t_var_dollar var);
 
 
 #endif

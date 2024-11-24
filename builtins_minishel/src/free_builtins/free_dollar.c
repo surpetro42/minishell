@@ -1,44 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils_dollar.c                                     :+:      :+:    :+:   */
+/*   free_dollar.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/09/27 15:13:15 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/04 23:15:56 by surpetro         ###   ########.fr       */
+/*   Created: 2024/09/16 21:26:22 by surpetro          #+#    #+#             */
+/*   Updated: 2024/11/21 19:44:04 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../minishel.h"
 
-
-char	*ft_strndup(char *s1)
+void free_dollar(t_var_dollar var)
 {
-	int		i;
-	int		x;
-	char	*m;
-
-	i = 0;
-	x = 0;
-	if(s1[i] == '$')
-		i++;
-	while (s1[x])
-	{
-		if(s1[x] == '$')
-			break;
-		x++;
-	}
-	i = 0;
-	m = (char *)malloc(x + 1);
-	if (m == NULL)
-		return (NULL);
-	while (i < x)
-	{
-		m[i] = s1[i];
-		++i;
-	}
-	if (i == x)
-		m[i] = '\0';
-	return (m);
+    if (var.s1_before)
+        free(var.s1_before);
+    if (var.s2_key)
+        free(var.s2_key);
+    if (var.s3_after)
+        free(var.s3_after);
+    if (var.res_1)
+        free(var.res_1);
+    if (var.res_line_key)
+        free(var.res_line_key);
+    if (var.buff)
+        free(var.buff);
 }
