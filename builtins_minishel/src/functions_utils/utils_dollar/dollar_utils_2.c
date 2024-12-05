@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 17:04:34 by surpetro          #+#    #+#             */
-/*   Updated: 2024/12/02 18:19:05 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/05 15:30:59 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,4 +81,45 @@ int	valid_remains_line(char *str)
 		|| (str[0] >= '0' && str[0] <= '9') || str[0] == '_'))
 		return 0;
 	return (1);
+}
+
+int	search_for_a_negative_character(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		if(s[i] < 0)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+char	*development_s3_atfer(char *str)
+{
+	int		i;
+	int		l;
+	int		len;
+	char	*buff;
+
+	i = 0;
+	l = 0;
+	len = ft_strlen(str);
+	buff = malloc(sizeof(char *) * len + 1);
+	if (!buff)
+		return (NULL);
+	while (str[i])
+	{
+		if(str[i] < 0)
+			i++;
+		buff[l] = str[i];
+		if (str[i])
+			i++;
+		l++;
+	}
+	buff[i] = '\0';
+	free(str);
+	return (buff);
 }

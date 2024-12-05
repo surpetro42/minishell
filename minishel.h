@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 12:52:25 by ayeganya          #+#    #+#             */
-/*   Updated: 2024/12/03 23:20:26 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/05 15:20:40 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,6 +232,8 @@ char			*after(char *str);
 char			*variable(char *str);
 char			*remains(char *key);
 int				valid_remains_line(char *str);
+int				search_for_a_negative_character(char *s);
+char			*development_s3_atfer(char *str);
 				//utils_dollar_3
 int				key_search_env(t_duplicate_env duplicate_env, t_var_dollar *var);
 void			env_list_key_search(t_duplicate_env **duplicate_env, t_var_dollar *var);

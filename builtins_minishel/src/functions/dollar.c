@@ -6,54 +6,11 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 19:44:26 by surpetro          #+#    #+#             */
-/*   Updated: 2024/12/05 01:49:12 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/05 16:05:34 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../minishel.h"
-
-
-
-int	search_for_a_negative_character(char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-	{
-		if(s[i] < 0)
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-char	*development_s3_atfer(char *str)
-{
-	int		i;
-	int		l;
-	int		len;
-	char	*buff;
-
-	i = 0;
-	l = 0;
-	len = ft_strlen(str);
-	buff = malloc(sizeof(char *) * len + 1);
-	if (!buff)
-		return (NULL);
-	while (str[i])
-	{
-		if(str[i] < 0)
-			i++;
-		buff[l] = str[i];
-		if (str[i])
-			i++;
-		l++;
-	}
-	buff[i] = '\0';
-	free(str);
-	return (buff);
-}
 
 char	*open_dollar(char *key, t_duplicate_env *duplicate_env, t_var_dollar var, int i)
 {
@@ -83,9 +40,6 @@ char	*open_dollar(char *key, t_duplicate_env *duplicate_env, t_var_dollar var, i
 	}
 	return (var.res_line);
 }
-
-// void	split_into_parts()
-// {}
 
 char	*dollar_func(char *str, utils_t *utils)
 {
@@ -132,5 +86,6 @@ char	*dollar_func(char *str, utils_t *utils)
 	resultant = ft_strjoin(var.res_1, var.s3_after);
 	if(search_for_a_negative_character(resultant) == 1)
 		resultant = development_s3_atfer(resultant);
+	free_dollar(var);
 	return resultant;
 }
