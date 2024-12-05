@@ -6,15 +6,15 @@
 #    By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/16 12:29:06 by ayeganya          #+#    #+#              #
-#    Updated: 2024/11/24 17:23:28 by surpetro         ###   ########.fr        #
+#    Updated: 2024/12/03 22:56:02 by surpetro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 # Compiler and compiler CFLAGS
 CC = cc
-CFLAGS = -Wall -Werror -Wextra  -fsanitize=address #-g -O0
-RLLIBFLAGS = -Ireadline/include -Lreadline/lib -lreadline -lhistory
+CFLAGS = -Wall -Werror -Wextra  #-fsanitize=address #-g -O0
+# RLLIBFLAGS = -Ireadline/include -Lreadline/lib -lreadline -lhistory
 
 # Header files
 H_FILE = minishel.h
@@ -29,6 +29,7 @@ SRC_FILES = init.c builtins_minishel/src/functions/dollar.c \
 			builtins_minishel/src/functions_utils/utils_dollar/dollar_utils_0.c \
 			builtins_minishel/src/functions_utils/utils_dollar/dollar_utils_1.c \
 			builtins_minishel/src/functions_utils/utils_dollar/dollar_utils_2.c \
+			builtins_minishel/src/functions_utils/utils_dollar/dollar_utils_3.c \
 			builtins_minishel/src/functions_utils/utils_export/export_utils_0.c \
 			builtins_minishel/src/functions_utils/utils_export/export_utils_1.c \
 			builtins_minishel/src/functions_utils/utils_export/export_utils_2.c \
@@ -40,8 +41,12 @@ SRC_FILES = init.c builtins_minishel/src/functions/dollar.c \
 			builtins_minishel/src/functions/env.c \
 			builtins_minishel/src/functions/unset.c \
 			builtins_minishel/src/functions/pwd.c \
+			builtins_minishel/src/functions/exit.c \
+			builtins_minishel/src/env/duplicate_env.c \
 			builtins_minishel/src/free_builtins/free_dollar.c \
-			builtins_minishel/src/env/duplicate_env.c
+			builtins_minishel/src/free_builtins/free_exp_env_list.c \
+			builtins_minishel/src/free_builtins/free_export.c
+			
 #B_SRC_FILES =
 
 OBJ_FILES = $(SRC_FILES:%.c=%.o)
@@ -57,11 +62,11 @@ BONUS = minishell
 all: $(LIBFT_A) $(RL) $(NAME)
 
 $(NAME): $(OBJ_FILES) $(H_FILE)
-	$(CC) $(CFLAGS) $(RLLIBFLAGS) $(OBJ_FILES) $(LIBFT_A) -o $@
+	$(CC) $(CFLAGS) -Lreadline/lib -lreadline -lhistory $(OBJ_FILES) $(LIBFT_A) -o $@
 
 #Object target
 %.o: %.c Makefile $(H_FILE)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -Ireadline/include -c -o $@ $<
 
 #Readline libraries compilation
 $(RL):

@@ -6,13 +6,11 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 21:26:22 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/24 22:17:51 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/05 14:47:10 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../minishel.h"
-
-// dzelu ban ka
 
 int	search_fole(t_duplicate_env *env, char *s)
 {
@@ -20,44 +18,44 @@ int	search_fole(t_duplicate_env *env, char *s)
 	char *str;
 
 	if (getcwd(cwd, PASS_MAX) == NULL)
-		return 0;
+		return 1;
 	str = ft_strdup(s);
 	if (str[0] == '-')
 	{
 		if (old_environment(env) == NULL)
-			exit(0);
+			return 1;
 		chdir(old_environment(env));
 		getcwd(cwd, PATH_MAX);
 		changes_env(&env, cwd);
-		return 1;
+		return 0;
 	}
 	else if (str[0] == '~' || str[0] < 32)
 	{
 		changes_old_env(&env, cwd);
 		if (home(env) == NULL)
-			exit(0);
+			return 1;
 		chdir(home(env));
 		getcwd(cwd, PATH_MAX);
 		changes_env(&env, cwd);
-		return 1;
+		return 0;
 	}
 	else
 	{
 		if (check_directory(str) == 0)
-			return 0;
+			return 1;
 		if (access_directory(str) == 0)
 		{
 			printf("minishell: %s: ", s);
 			printf("Permission denied\n");
-			return 0;
+			return 1;
 		}
 		changes_old_env(&env, cwd);
 		chdir(str);
 		getcwd(cwd, PATH_MAX);
 		changes_env(&env, cwd);
-		return 1;
+		return 0;
 	}
-	return 0;
+	return 1;
 }
 
 int		cd(char *str, utils_t *utils)
@@ -73,5 +71,6 @@ int		cd(char *str, utils_t *utils)
 			exit(0);
 		res = chdir(home(utils->shell->duplicate_env));
 	}
+	printf("%d\n", res);
 	return res;
 }

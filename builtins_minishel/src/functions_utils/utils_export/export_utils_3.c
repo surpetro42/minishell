@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 21:57:25 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/24 22:41:12 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/04 22:32:51 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,13 +82,15 @@ int	arr_string_element(char *str, t_duplicate_env **env,
 {
 	t_var_export	var;
 
+	var.buff_key = NULL;
+	var.buff_vlaue = NULL;
 	var.findel = find_before_equal(str);
 	if (var.findel == 0)
 		return (0);
 	if (process_string(str, &var) == 0)
 		return (0);
 	handle_logic(&var, env, last);
-	free(var.buff_key);
-	free(var.buff_vlaue);
+	// system("leaks minishell");
+	free_export(var);
 	return (1);
 }

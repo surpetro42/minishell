@@ -6,12 +6,14 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 19:30:33 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/24 15:03:41 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/02 21:29:36 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../../minishel.h"
 
+
+//		part -> before the dollar sign
 char	*before_dollar(char *str)
 {
 	int		i;
@@ -35,6 +37,7 @@ char	*before_dollar(char *str)
 	return (s);
 }
 
+//		part -> The words after the dollar sign
 char	*key(char *str)
 {
 	int		i;
@@ -68,6 +71,7 @@ char	*key(char *str)
 	return (s);
 }
 
+//		part -> after the dollar sign
 char	*after(char *str)
 {
 	int		i;

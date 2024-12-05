@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 21:57:25 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/24 22:00:41 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/03 22:18:51 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,5 +105,4 @@ void	add_enviorment(t_shell *shell)
 	iter->next = NULL;
 	shell->duplicate_env = start;
 	shell->input_export = start1.next;
-	
 }

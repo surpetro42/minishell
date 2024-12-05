@@ -6,12 +6,29 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/27 15:13:15 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/22 20:58:44 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/03 20:48:37 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../../minishel.h"
 
+//		part initialization variable dollar
+void	initialization(t_var_dollar *var)
+{
+	var->buff = NULL;
+	var->res_1 = NULL;
+	var->res_line_key = NULL;
+	var->s1_before = NULL;
+	var->s2_key = NULL;
+	var->s3_after = NULL;
+	var->res_buff = NULL;
+	var->line = NULL;
+	var->res_line = NULL;
+	var->res_line_remains = NULL;
+}
+
+
+//		part variable key before dollar
 char	*ft_strndup(char *s1)
 {
 	int		i;

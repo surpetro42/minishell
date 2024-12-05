@@ -1,21 +1,45 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free_export.c                                      :+:      :+:    :+:   */
+/*   free_exp_env_list.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 21:26:22 by surpetro          #+#    #+#             */
-/*   Updated: 2024/12/03 23:19:02 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/04 22:34:36 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../minishel.h"
 
-void	free_export(t_var_export var)
-{
-    if (var.buff_key)
-        free(var.buff_vlaue);
-    if (var.buff_vlaue)
-        free(var.buff_vlaue);
-}
+// void	free_env_list(t_duplicate_env *list)
+// {
+// 	t_duplicate_env *tmp;
+
+// 	while (list)
+// 	{
+// 		tmp = list;
+// 		if (list->key)
+// 			free(list->key);
+// 		if (list->value)
+// 			free(list->value);
+// 		list = list->next;
+// 		free(tmp);
+// 	}
+// }
+
+// void	free_exp_list(t_export *list)
+// {
+// 	t_export *tmp;
+
+// 	while (list)
+// 	{
+// 		tmp = list;
+// 		if (list->key)
+// 			free(list->key);
+// 		if (list->value)
+// 			free(list->value);
+// 		list = list->next;
+// 		free(tmp);
+// 	}
+// }

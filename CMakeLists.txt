@@ -10,7 +10,7 @@ set(CMAKE_C_FLAGS "-Wall -Werror -Wextra")
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -fsanitize=address")
 
 # Define the source files and header files
-set(SRC_FILES init.c builtins_minishel/src/functions/dollar.c builtins_minishel/src/functions_utils/utils_dollar.c builtins_minishel/src/functions_utils/utils_dollar.c builtins_minishel/src/functions_utils/duplicate_env.c builtins_minishel/src/functions_utils/cd_utils.c builtins_minishel/src/functions_utils/export_utils.c builtins_minishel/src/functions/echo.c builtins_minishel/src/functions/cd.c builtins_minishel/src/functions/export.c builtins_minishel/src/functions/env.c builtins_minishel/src/functions/pwd.c)
+set(SRC_FILES init.c builtins_minishel/src/functions/dollar.c builtins_minishel/src/functions_utils/dollar_utils.c builtins_minishel/src/functions_utils/cd_utils.c builtins_minishel/src/functions_utils/export_utils_0.c builtins_minishel/src/functions_utils/export_utils_1.c builtins_minishel/src/functions_utils/export_utils_2.c builtins_minishel/src/functions/echo.c builtins_minishel/src/functions/cd.c builtins_minishel/src/functions/export.c builtins_minishel/src/functions/env.c builtins_minishel/src/functions/pwd.c builtins_minishel/src/functions/unset.c builtins_minishel/src/env/duplicate_env.c)
 set(HEADER_FILES minishel.h)
 
 # Readline paths

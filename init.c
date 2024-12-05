@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 12:51:41 by ayeganya          #+#    #+#             */
-/*   Updated: 2024/11/24 15:04:36 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/03 23:15:33 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ void	block_arr_cleaner(block_t *p_block)
 	{
 		if (p_block->type == SUBSH)
 			block_arr_cleaner(p_block->subsh_block_arr);
+		else
+			clean_argv_memory(p_block->exec_argv);
 		if (p_block->next)
 		{
 			p_block = p_block->next;
@@ -35,66 +37,53 @@ void	block_arr_cleaner(block_t *p_block)
 
 void	utils_reset(utils_t *utils)
 {
-	//utils->env = env;
-	utils->new_word = 1;
 	utils->in_block = 0;
-	utils->i_string = 0;
 	utils->hd_eof = 0;
 	utils->hd_mode = 0;
+	free(utils->i_string);
 	utils->i_string = 0;
 	utils->parsh_block = 0;
 	utils->ok_to_cnt = 1;
-	//utils->last_exit_status = 0;
+}
+
+void	clean_all_fd(block_t *block)
+{
+	block = last_block(block);
+	while (block)
+	{
+		if (block->input_fd != 0)
+			close(block->input_fd);
+		if (block->output_fd != 1)
+			close(block->output_fd);
+		if (block->tmp_pipe_input_fd != 0)
+			close(block->tmp_pipe_input_fd);
+		block = block->prev;
+	}	
 }
 
 void	cleaner(block_t **block_arr, utils_t *utils)
 {
+	DIR 			*dir;
+	struct dirent	*entry;
+
 	block_arr_cleaner(*block_arr);
 	*block_arr = 0;
 	utils_reset(utils);
-	return ;
-}
-
-//This function should be called before exit to clean up all resources
-void	full_clean(block_t *block_arr, utils_t *utils)
-{
-	(void)utils;
-	(void)block_arr;
-	return ;
-}
-
-//Function placeholders
-void	my_exit(block_t *block_arr, utils_t *utils)
-{
-	(void)block_arr;
-	(void)utils;
-	exit(0);
-}
-
-int	var_substitute(block_t *block_arr, utils_t *utils)
-{
-	(void)block_arr;
-	(void)utils;
-	return (0);
-}
-/*
-void	executor(block_t *block_arr, utils_t *utils)
-{
-	(void)block_arr;
-	(void)utils;
-	return ;
-}*/
-
-void	get_string(utils_t *utils)
-{
-	utils->i_string = readline(PROMPT);
-	if (utils->i_string == 0)
+	dir = opendir(".");
+	if (dir == 0)
+		return ;
+	entry = readdir(dir);
+	while(entry != 0)
 	{
-		full_clean(0, utils);
-		exit (0);
+		if (ft_strncmp("minishel_temp_file", entry->d_name, 18) == 0)
+			unlink(entry->d_name);
+		entry = readdir(dir);
 	}
-	add_history(utils->i_string);
+	closedir(dir);
+	return ;
 }
+
+
 
 /************SYNTAX_CHECK************/
 
@@ -192,6 +181,17 @@ int	is_not_special(char ch)
 		return (0);
 }
 
+void	special_case(char *dst, char *src, int i, int *j_index)
+{
+	i--;
+	while ((src[i] >= '0' && src[i] <= '9') || (src[i] >= 'a' && src[i] <= 'z') || (src[i] >= 'A' && src[i] <= 'Z'))
+		i--;
+	if (src[i] != '$')
+		return ;
+	dst[*j_index] = -16;
+	(*j_index)++;
+}
+
 void	extract_the_phrase(char *dst, char *src, int *index)
 {
 	int i;
@@ -212,6 +212,8 @@ void	extract_the_phrase(char *dst, char *src, int *index)
 				else
 					dst[j++] = src[i++];
 			}
+			if (tmp == '"')
+				special_case(dst, src, i, &j);
 			i++;
 		}
 		else
@@ -268,12 +270,226 @@ int	status_decoder(int status)
 	if (WIFEXITED(status))
 		result = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))
+	{
 		result = WTERMSIG(status) + 128;
+		if (result == 131)
+			printf("Quit: %d\n", result - 128);
+	}
 	else if (WIFSTOPPED(status))
 		result = WSTOPSIG(status) + 128;
 	else
 		result = 1;
 	return (result);
+}
+
+/***argv_wildcard_processor***/
+
+void	file_list_clean(file_list_t *file_list)
+{
+	file_list_t	*temp;
+
+	while(file_list)
+	{
+		temp = file_list;
+		file_list = file_list->next;
+		free(temp);
+	}
+}
+
+int	matches(char *w_str, char *fname)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (w_str[i] != 0 && fname[j] != 0)
+	{
+		if (w_str[i] == '*')
+		{
+			while (w_str[i] == '*')
+				i++;
+			while (fname[j] && w_str[i] != fname[j])
+				j++;
+			continue ;
+		}
+		if (w_str[i] != fname[j])
+			return (0);
+		i++;
+		j++;
+	}
+	while (w_str[i] == '*')
+		i++;
+	if (w_str[i] != fname[j])
+		return (0);
+	return (1);
+}
+
+int	add_match(file_list_t **p_file_list, char *fname)
+{
+	file_list_t	*file_list;
+	
+	if (*p_file_list == 0)
+	{
+		*p_file_list = (file_list_t *)malloc(sizeof(file_list_t));
+		if (*p_file_list == 0)
+			return (my_perror("minishell", "add_match"), 1);
+		file_list = *p_file_list;
+	}
+	else
+	{
+		file_list = *p_file_list;
+		while (file_list->next != 0)
+			file_list = file_list->next;
+		file_list->next = (file_list_t *)malloc(sizeof(file_list_t));
+		if (file_list->next == 0)
+			return (my_perror("minishell", "add_match"), 1);
+		file_list = file_list->next;
+	}
+	ft_strlcpy(file_list->filename, fname, NAME_MAX);
+	file_list->next = 0;
+	return (0);
+}
+
+void	clean_argv_memory(char **argv)
+{
+	int i;
+
+	i = 0;
+	while(argv[i] != 0)
+		free(argv[i++]);
+	free(argv);
+}
+
+int	argv_replace_1(char ***p_argv, int i, char **temp)
+{
+	int	j;
+
+	j = 0;
+	while (j < i)
+	{
+		temp[j] = (char *)malloc(sizeof(char) * (ft_strlen((*p_argv)[j]) + 1));
+		if (temp[j] == 0)
+			return (clean_argv_memory(temp), \
+					my_perror("minishell", "argv_replace_1"), 1);
+		ft_strlcpy(temp[j], (*p_argv)[j], ft_strlen((*p_argv)[j]) + 1);
+		j++;
+	}
+	return (0);
+}
+
+int	argv_replace_2(char **temp, int j, file_list_t *file_list)
+{
+	while (file_list != 0)
+	{
+		temp[j] = (char *)malloc(sizeof(char) * (ft_strlen(file_list->filename) + 1));
+		if (temp[j] == 0)
+			return (clean_argv_memory(temp), \
+				my_perror("minishell", "argv_replace_2"), 1);
+		ft_strlcpy(temp[j++], file_list->filename, ft_strlen(file_list->filename) + 1);
+		file_list = file_list->next;
+	}
+	return (0);
+}
+
+int	argv_replace_3(char **temp, int i, int match_nbr, char ***p_argv)
+{
+	int j;
+
+	j = i + match_nbr - 1;
+	while ((*p_argv)[i] != 0)
+	{
+		temp[j] = (char *)malloc(sizeof(char) * (ft_strlen((*p_argv)[i]) + 1));
+		if (temp[j] == 0)
+			return (clean_argv_memory(temp), \
+					my_perror("minishell", "argv_replace_3"), 1);
+		ft_strlcpy(temp[j], (*p_argv)[i], ft_strlen((*p_argv)[i]) + 1);
+		i++;
+		j++;
+	}
+	temp[j] = 0;
+	return (0);
+}
+
+int	argv_replace(char ***p_argv, int i, file_list_t *file_list, int match_nbr)
+{
+	int		j;
+	char	**temp;
+
+	j = 0;
+	while ((*p_argv)[j] != 0)
+		j++;
+	temp = (char **)malloc(sizeof(char *) * (j + match_nbr));
+	if (temp == 0)
+		return (my_perror("minishell", "argv_replace"), 1);
+	if (argv_replace_1(p_argv, i, temp) == 1)
+		return (1);
+	if (argv_replace_2(temp, i, file_list) == 1)
+		return (1);
+	if (argv_replace_3(temp, i + 1, match_nbr, p_argv) == 1)
+		return (1);
+	clean_argv_memory(*p_argv);
+	*p_argv	= temp;
+	return (0);
+}
+
+int	argv_find_and_replace(char ***p_argv, int *i, DIR *dir)
+{
+	file_list_t		*file_list;
+	struct dirent	*entry;
+	int				match_nbr;
+
+	file_list = 0;
+	entry = readdir(dir);
+	match_nbr = 0;
+	while (entry != 0)
+	{
+		if (matches((*p_argv)[*i], entry->d_name) && ++match_nbr)
+			if (add_match(&file_list, entry->d_name) == 1)
+				return (1);
+		entry = readdir(dir);
+	}
+	if (file_list == 0 && ++(*i))
+		return (0);
+	if (argv_replace(p_argv, *i, file_list, match_nbr) == 1)
+		return (1);
+	*i += match_nbr;
+	file_list_clean(file_list);
+	return (0);
+}
+
+int	no_asterisk(char *str)
+{
+	int i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '*')
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+int	argv_wildcard_processor(block_t *block)
+{
+	int i;
+	DIR	*dir;
+	
+	i = 1;
+	dir = opendir(".");
+	if (dir == 0)
+		return (my_perror("minishell", 0), 1);
+	while (block->exec_argv[i] != 0)
+	{
+		if (no_asterisk(block->exec_argv[i]) && ++i)
+			continue ;
+		if (argv_find_and_replace(&(block->exec_argv), &i, dir) == 1)
+			return(1);
+	}
+	closedir(dir);
+	return (0);
 }
 
 
@@ -284,6 +500,7 @@ void	block_init(block_t *block)
 	block->type = 0;
 	block->input_fd = 0;
 	block->output_fd= 1;
+	block->tmp_pipe_input_fd = 0;
 	block->output_mode = 0;
 	block->next_logic_elem = 0;
 	block->exit_status = 0;
@@ -301,6 +518,11 @@ block_t *last_block(block_t *block_arr)
 	block_t *ret_ptr;
 
 	ret_ptr = block_arr;
+	//if (block_arr == 0)
+	//{
+	//	write(2, "minishell: last_block function argument is NULL\n", 48);
+	//	return (0);
+	//}
 	while (ret_ptr->next != 0)
 		ret_ptr = ret_ptr->next;
 	return (ret_ptr);
@@ -330,16 +552,10 @@ int	next_block_creator(block_t **p_block_arr, utils_t *utils)
 
 /*************************TOKENIZER*****************************/
 
-int	space_processor(int *index, char *str)
+void	space_processor(int *index, char *str)
 {
-	int result;
-
-	result = 0;
-	if (str[*index] == ' ')
-		result = 1;
 	while(str[*index] && str[*index] == ' ')
 		(*index)++;
-	return (result);
 }
 
 
@@ -409,9 +625,9 @@ int	hd_eof_extractor(utils_t *utils, int *index)
 		if ((*ch == '<' && *(ch + 1) == '<') || (*ch == '>' && *(ch + 1) == \
 '>') || (*ch == '&' && *(ch + 1) == '&') || (*ch == '|' && *(ch + 1) == '|'))
 		return (write(2, "minishell: syntax error near unexpected token '"\
-						, 47), write(2, &ch, 2), write(2, "'\n", 2), 1);
+						, 47), write(2, ch, 2), write(2, "'\n", 2), 1);
 		return (write(2, "minishell: syntax error near unexpected token '", \
-						47), write(2, &ch, 1), write(2, "'\n", 2), 1);
+						47), write(2, ch, 1), write(2, "'\n", 2), 1);
 	}
 	size = count_phrase_size(utils->i_string, *index);
 	utils->hd_mode = hd_mode_finder(utils->i_string, *index);
@@ -487,7 +703,7 @@ int	s_input_processor2(int *index, block_t *p_block, utils_t *utils)
 	restore_hidden_dollar(new_filename);
 	p_block->input_fd = open(new_filename, O_RDONLY);
 	if (p_block->input_fd == -1)
-		return (my_perror("minishel", new_filename), 1);
+		return (my_perror("minishel", new_filename), free(new_filename), 1);
 	free (new_filename);
 	return (0);
 }
@@ -509,9 +725,9 @@ int	s_input_processor(int *index, block_t **p_block_arr, utils_t *utils)
 		if ((*ch == '<' && *(ch + 1) == '<') || (*ch == '>' && *(ch + 1) == \
 '>') || (*ch == '&' && *(ch + 1) == '&') || (*ch == '|' && *(ch + 1) == '|'))
 		return (write(2, "minishell: syntax error near unexpected token '"\
-						, 47), write(2, &ch, 2), write(2, "'\n", 2), 1);
+						, 47), write(2, ch, 2), write(2, "'\n", 2), 1);
 		return (write(2, "minishell: syntax error near unexpected token '", \
-						47), write(2, &ch, 1), write(2, "'\n", 2), 1);
+						47), write(2, ch, 1), write(2, "'\n", 2), 1);
 	}
 	return(s_input_processor2(index, p_block, utils));
 }
@@ -622,18 +838,16 @@ int	command_processor2(int *index, block_t *p_block, utils_t *utils)
 		size = count_phrase_size(utils->i_string, *index);
 		temp = (char *)malloc(sizeof(char) * (size + 5));
 		if (temp == 0)
-			return(/*free(p_block->exec_argv), */my_perror("minishell", \
-						"command_processor"), 1);
+			return(my_perror("minishell", "command_processor"), 1);
 		extract_the_phrase(temp, utils->i_string, index);
 		p_block->exec_argv[i] = dollar_func(temp, utils);
 		if (p_block->exec_argv[i] == 0)
-			return (/*free(p_block->exec_argv), */free(temp), \
-					my_perror("minishell", " command_processor_dollar"), 1);
+			return (free(temp), my_perror("minishell", " cmd_proc_dollar"), 1);
 		free(temp);
 		restore_hidden_dollar(p_block->exec_argv[i++]);
 		space_processor(index, utils->i_string);
 	}
-	return (0);
+	return (argv_wildcard_processor(p_block));
 }
 
 int	new_exec_argv_creator(char ***exec_argv, int new_size)
@@ -683,7 +897,7 @@ int	command_processor(int *index, block_t **p_block_arr, utils_t *utils)
 	else
 		p_block->exec_argv = (char **)ft_calloc(size + 5, sizeof(char *));
 	if (p_block->exec_argv == 0)
-		return (my_perror("minishell", " command_processor"), 1);
+		return (my_perror("minishell", "command_processor"), 1);
 	p_block->type = EXEC;
 	return (command_processor2(index, p_block, utils));
 }
@@ -732,6 +946,8 @@ int	pipe_processor(int *index, block_t **p_block_arr, utils_t *utils)
 	utils->in_block = 0;
 	*index += 1;
 	space_processor(index, utils->i_string);
+	if (utils->i_string[*index] == 0)
+		return (write(2, "minishell: Syntax error near unexpected token newline\n", 54), 1);
 	return (0);
 }
 
@@ -782,7 +998,7 @@ int	tokenizer(block_t **p_block_arr,  utils_t *utils)
 	while (utils->i_string[i] && ret_val == 0)
 	{
 		if (utils->i_string[i] == ' ')
-			utils->new_word = space_processor(&i, utils->i_string);
+			space_processor(&i, utils->i_string);
 		else if (utils->i_string[i] == '<' && utils->i_string[i + 1] == '<' )
 			ret_val = h_doc_processor(&i, p_block_arr, utils);
 		else if (utils->i_string[i] == '<')
@@ -804,6 +1020,9 @@ int	tokenizer(block_t **p_block_arr,  utils_t *utils)
 		else
 			ret_val = command_processor(&i, p_block_arr, utils);
 	}
+	utils->last_exit_status = ret_val;
+	if (ret_val != 0)
+		clean_all_fd(*p_block_arr);
 	return (ret_val);
 }
 
@@ -811,11 +1030,13 @@ int	tokenizer(block_t **p_block_arr,  utils_t *utils)
 /***********************EXECUTOR****************************/
 
 /***regular_exec***/
-void	exec_compose_cleanup(char **paths)
+void	exec_compose_cleanup(char **paths, char *exec)
 {
 	int j;
 
 	j = 0;
+	if (exec != 0)
+		free(exec);
 	while (paths[j])
 		free(paths[j++]);
 	free(paths);
@@ -832,26 +1053,30 @@ char	*exec_compose2(char *exec, char **paths)
 	{
 		temp = ft_strjoin(paths[i++], "/");
 		if (temp == 0)
-			return (exec_compose_cleanup(paths), (char *)0);
+			return (exec_compose_cleanup(paths, exec), (char *)0);
 		result = ft_strjoin(temp, exec);
 		free(temp);
 		if (result == 0)
-			return (exec_compose_cleanup(paths), (char *)0);
+			return (exec_compose_cleanup(paths, exec), (char *)0);
 		if (access(result, F_OK) == 0)
-			return (exec_compose_cleanup(paths), result);
+			return (exec_compose_cleanup(paths, exec), result);
+		free(result);
 	}
-	return (exec_compose_cleanup(paths), exec);
+	return (exec_compose_cleanup(paths, 0), exec);
 }
 
-char	*exec_compose(char *exec, char **env)
+char	*exec_compose(char *argv0, char **env)
 {
 	int		i;
 	char	**paths;
+	char	*exec;
 
 	i = 0;
+	exec = (char *)malloc(sizeof(char) * (ft_strlen(argv0) + 1));
 	if (exec == 0)
 		return (0);
-	if (ft_strchr(exec, (int)'/'))
+	ft_strlcpy(exec, argv0, ft_strlen(argv0) + 1);
+	if (ft_strchr(exec, (int)'/') || is_builtin(exec))
 		return (exec);
 	while (env[i] && ft_strncmp(env[i], "PATH=", 5))
 		i++;
@@ -859,31 +1084,43 @@ char	*exec_compose(char *exec, char **env)
 		return (exec);
 	paths = ft_split(&(env[i][5]), ':');
 	if (!paths)
-		return (0);
+		return (free (exec), (char *)0);
 	return (exec_compose2(exec, paths));
 
 }
 
 int	reg_exec_child(block_t *block, utils_t *utils, char *exec)
 {
-
+	signal(SIGQUIT, SIG_DFL);
 	if (dup2(block->input_fd, 0) == -1 || dup2(block->output_fd, 1) == -1)
 		return (my_perror("minishell", exec), free(exec), \
-				full_clean(block, utils), 1);
+			full_clean(block, utils), 1);
 	if (block->input_fd != 0)
 		close(block->input_fd);
 	if (block->output_fd != 1)
 		close(block->output_fd);
+	if (is_builtin(exec))
+		return(run_builtin(block, utils));
 	execve(exec, block->exec_argv, utils->env);
-	return(my_perror("minishell: ", exec), free(exec), \
-		full_clean(block, utils), 1);
+	if (ft_strcmp("No such file or directory", strerror(errno)) == 0 \
+			&& ft_strchr(exec, '/') == 0)
+	{
+		write(2, "minishell: ", 11);
+		write(2, exec, ft_strlen(exec));
+		write(2, ": command not found\n", 20);
+		return(free(exec), full_clean(block, utils), 127);
+	}
+	else
+		my_perror("minishell", exec);
+	return(free(exec), full_clean(block, utils), 1);
 }
 
 void	exit_status_processing(block_t *block, utils_t *utils)
 {
 	utils->last_exit_status = block->exit_status;
 	if ((block->exit_status == 0 && block->next_logic_elem == AND_AND) || \
-		(block->exit_status != 0 && block->next_logic_elem == OR_OR))
+		(block->exit_status != 0 && block->next_logic_elem == OR_OR) || \
+		block->next_logic_elem == MY_PIPE)
 		utils->ok_to_cnt = 1;
 	else
 		utils->ok_to_cnt = 0;
@@ -891,6 +1128,7 @@ void	exit_status_processing(block_t *block, utils_t *utils)
 
 int	is_builtin(char *exec)
 {
+
 	if (ft_strcmp(exec, "echo") == 0)
 		return (1);
 	else if (ft_strcmp(exec, "pwd") == 0)
@@ -903,8 +1141,8 @@ int	is_builtin(char *exec)
 		return (5);
 	else if (ft_strcmp(exec, "env") == 0)
 		return (6);
-	//else if (ft_strcmp(exec, "exit") == 0)
-	//	return (7);
+	else if (ft_strcmp(exec, "exit") == 0)
+		return (7);
 	else
 		return (0);
 }
@@ -916,11 +1154,11 @@ int	builtin_fd_chng(int *fd, block_t *block)
 	fd[0] = dup(0);
 	fd[1] = dup(1);
 	if (fd[0] == -1 || fd[1] == -1)
-		return(my_perror("minishell: ", "fd_change_for_builtin"), 1);
+		return(my_perror("minishell", "fd_change_for_builtin"), 1);
 	temp[0] = dup2(block->input_fd, 0);
 	temp[1] = dup2(block->output_fd, 1);
 	if (temp[0] == -1 || temp[1] == -1)
-		return(my_perror("minishell: ", "fd_change_for_builtin"), 1);
+		return(my_perror("minishell", "fd_change_for_builtin"), 1);
 	if (block->input_fd != 0)
 		close(block->input_fd);
 	if (block->output_fd != 1)
@@ -962,13 +1200,13 @@ int	run_builtin(block_t *block, utils_t *utils)
 	else if (type == 6)
 		env_print(utils);
 	else if (type == 4)
-		export_f(utils, block->exec_argv); // sxala ed argv-y te che ashxatuma :)
+		export_f(utils, block->exec_argv);
 	else if (type == 5)
 		unset_f(utils ,block->exec_argv);
 	else if (type == 2)
 		pwd(utils);
-	//else  if (type == 7)
-	//	exit(block, utils);
+	else  if (type == 7)
+		my_exit(block, utils);
 	exit_status_processing(block, utils);
 	return (block->exit_status);
 }
@@ -1002,43 +1240,57 @@ int	regular_exec(block_t *block, utils_t *utils)
 	int		ret_val;
 	int		fd[2];
 	
-	if (is_builtin(block->exec_argv[0]))
+	if (is_builtin(block->exec_argv[0]) && block->next_logic_elem != MY_PIPE)
 	{
 		ret_val = !(!builtin_fd_chng(fd, block) && !run_builtin(block, utils));
 		return (!(!builtin_fd_revert(fd) && !ret_val));
 	}
 	exec = exec_compose(block->exec_argv[0], utils->env);
 	if (exec == 0)
-		return (my_perror("minishell: ", "exec_compose"), 1);
-
+		return (my_perror("minishell", "exec_compose"), 1);
 	pid = fork();
 	if (pid == -1)
-		return (my_perror("minishell: ", exec), 1);
+		return (my_perror("minishell", exec), 1);
 	else if (pid == 0)
 		exit (reg_exec_child(block, utils, exec));
-
-
 	if (block->input_fd != 0)
 		close(block->input_fd);
 	if (block->output_fd != 1)
 		close(block->output_fd);
-
 	return (waiting_or_no(pid, exec, block, utils));
 }
 
 /***regular_subshell***/
+void	close_subshell_fds(block_t *block, utils_t *utils)
+{
+	while (block != 0)
+	{
+		if (block->input_fd != 0)
+			close(block->input_fd);
+		if (block->output_fd != 1)
+			close(block->output_fd);
+		if (block->type == EXEC)
+			block = block->next;
+		else
+		{
+			close_subshell_fds(block->subsh_block_arr, utils);
+			block = block->next;
+		}
+	}
+}
+
 int	subsh_waiting_or_no(int pid, block_t *block, utils_t *utils)
 {
 	int temp;
-
+	
+	close_subshell_fds(block->subsh_block_arr, utils);
 	if (block->next_logic_elem != MY_PIPE)
 	{
 		if (waitpid(pid, &(block->exit_status), 0) != pid)
 			return (my_perror("minishell", ""), 1);
 		exit_status_processing(block, utils);
-		printf("balu");
 		while (wait(&temp) != -1)
-			printf("hello");
+			;
 	}
 	else
 	{
@@ -1085,7 +1337,7 @@ int	pipes_creator(block_t *block)
 	while(block->next_logic_elem == MY_PIPE)
 	{
 		if (pipe(fd) == -1)
-			return (my_perror("minishell: ", "pipes_creator"), 1);
+			return (/*clean_all_fd(block), */my_perror("minishell", "pipes_creator"), 1);
 		if (block->output_fd == 1)
 			block->output_fd = fd[1];
 		else
@@ -1093,7 +1345,7 @@ int	pipes_creator(block_t *block)
 		if (block->next->input_fd == 0)
 			block->next->input_fd = fd[0];
 		else
-			close(fd[0]);
+			block->next->tmp_pipe_input_fd = fd[0];
 		block = block->next;
 	}
 	return (0);
@@ -1101,24 +1353,21 @@ int	pipes_creator(block_t *block)
 
 int	pipe_exec(block_t *block, utils_t *utils)
 {
-
 	if (pipes_creator(block) == 1)
 		return(1);
-	while (block != 0 && (block->next_logic_elem == MY_PIPE || \
-				block->prev->next_logic_elem == MY_PIPE))
+	while (block != 0 )
 	{
 		if (block->type == EXEC)
 		{
 			if (regular_exec(block, utils) == 1)
 				return (1);
-			block = block->next;
 		}
 		else if (block->type == SUBSH)
-		{
 			if (regular_subshell(block, utils) == 1)
 				return (1);
-			block = block->next;
-		}
+		if (block->next_logic_elem != MY_PIPE)
+			break ;
+		block = block->next;
 	}
 	return (0);	
 }
@@ -1131,23 +1380,26 @@ int executor(block_t *block, utils_t *utils)
 	while (block != 0 && utils->ok_to_cnt && ret_val == 0)
 	{
 		if (block->type == EXEC && block->next_logic_elem != MY_PIPE)
-		{
 			ret_val = regular_exec(block, utils);
-			block = block->next;
-		}
 		else if (block->type == SUBSH && block->next_logic_elem != MY_PIPE)
-		{
 			ret_val = regular_subshell(block, utils);
-			block = block->next;
-		}
 		else if (block->next_logic_elem == MY_PIPE)
 		{
 			ret_val = pipe_exec(block, utils);
-			while (block != 0 && (block->next_logic_elem == MY_PIPE || \
-				block->prev->next_logic_elem == MY_PIPE))
+			while (block != 0 )
+			{
+				if (block->tmp_pipe_input_fd != 0)
+					close (block->tmp_pipe_input_fd);
+				if (block->next_logic_elem != MY_PIPE)
+					break ;
 				block = block->next;
+			}
 		}
+		if (ret_val == 0)
+			block = block->next;
 	}
+	if (ret_val != 0)
+		clean_all_fd(block);
 	return (ret_val);
 }
 
@@ -1176,10 +1428,43 @@ int	init_init(utils_t *utils, char **env)
 	return (0);
 }
 
+void handle_sigint(int sig)
+{
+	if (reading == 1)
+	{
+		rl_replace_line("", 0);
+		rl_redisplay();
+		printf("\n%s", PROMPT);
+	}
+	sig++;
+}
+
+void	get_string(utils_t *utils)
+{
+	reading = 1;
+	utils->i_string = readline(PROMPT);
+	reading = 0;
+	if (utils->i_string == 0)
+	{
+		full_clean(0, utils);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+		write(1,"exit\n", 5);
+		exit (0);
+	}
+	if (ft_strcmp(utils->i_string, ""))
+		add_history(utils->i_string);
+}
+
 int main(int argc, char *argv[], char *env[])
 {
 	block_t	*block_arr;
 	utils_t	utils;
+
+	reading = 0;
+	signal(SIGINT, handle_sigint);
+	signal(SIGQUIT, SIG_IGN);
 
 	if (argc > 1)
 		argv[1] = 0;
@@ -1191,8 +1476,8 @@ int main(int argc, char *argv[], char *env[])
 		get_string(&utils);
 		if (syntax_check(&utils) == 0)
 			if (tokenizer(&block_arr, &utils) == 0)
-				if (var_substitute(block_arr, &utils) == 0)
 					executor(block_arr, &utils);
 		cleaner(&block_arr, &utils);
+		// system("leaks minishell");
 	}
 }

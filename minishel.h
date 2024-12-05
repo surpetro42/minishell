@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 12:52:25 by ayeganya          #+#    #+#             */
-/*   Updated: 2024/11/24 22:40:29 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/03 23:20:26 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@
 # include <sys/stat.h>
 # include <termios.h>
 # include <term.h>
+# include <limits.h>
 # include "libft/libft.h"
 //# include "builtins_minishel/includes/minishell.h"
 
@@ -48,12 +49,16 @@
 # define OR_OR		2
 # define MY_PIPE 	3
 
+/*******GLOBAL_VARIABLE*******/
+int	reading;
+
 /***********STRUCTURES***********/
 typedef struct block_s
 {
 	int	type;
 	int	input_fd;
 	int	output_fd;
+	int	tmp_pipe_input_fd;
 	int output_mode;
 	int	next_logic_elem;
 	int exit_status;
@@ -63,23 +68,13 @@ typedef struct block_s
 
 	//for SUBSH type
 	struct block_s	*subsh_block_arr;
-	//struct block_s	*parsh_block_arr;
 	struct block_s	**parsh_block;
-
-
-	//for PIPE type
-	//char	**exec_arr;
 
 	//for list functionality
 	struct block_s	*next;
 	struct block_s	*prev;
 	int				index;
 } block_t;
-
-/*typedef struct token_s
-{
-	char
-}*/
 
 typedef struct utils_s
 {
@@ -100,6 +95,13 @@ typedef struct utils_s
 	
 } utils_t;
 
+typedef struct file_list_s
+{
+	char				filename[NAME_MAX];
+	struct file_list_s	*next;
+	//struct file_list_s	*prev;
+} file_list_t;
+
 
 char	*dollar_func(char *str, utils_t *utils);
 int		cd(char *str, utils_t *utils);
@@ -108,7 +110,7 @@ void	pwd(utils_t *utils);
 //int		export_f(utils_t *utils);
 
 void	extract_the_phrase(char *dst, char *src, int *index);
-int		space_processor(int *index, char *str);
+void	space_processor(int *index, char *str);
 int		next_block_creator(block_t **block_arr, utils_t *utils);
 block_t	*last_block(block_t *block_arr);
 void	block_init(block_t *block);
@@ -117,11 +119,21 @@ int		is_not_special(char ch);
 int		count_phrase_size(char *str, int i);
 int		status_decoder(int status);
 int 	executor(block_t *block, utils_t *utils);
+int		regular_subshell(block_t *block, utils_t *utils);
+int		pipe_exec(block_t *block, utils_t *utils);
+void	jump_over_pipes(block_t **block);
+int		wildcard_processor(block_t *block, utils_t *utils, int mode);
+void	clean_argv_memory(char **argv);
+int		is_builtin(char *exec);
+int		run_builtin(block_t *block, utils_t *utils);
+block_t *last_block(block_t *block_arr);
 //This function cleans token's structure after the line execution
 void	cleaner(block_t **block_arr, utils_t *utils);
-
 //This function should be called before exit to clean up all resources
 void	full_clean(block_t *block_arr, utils_t *utils);
+void	my_exit(block_t *block, utils_t *utils);
+void	block_arr_cleaner(block_t *p_block);
+
 
 # define STRING 0
 # define PIPE 1 // |
@@ -129,6 +141,7 @@ void	full_clean(block_t *block_arr, utils_t *utils);
 # define INPUT_REDIRECTION 3 // <
 # define APPEND_OUTPUT_REDIRECTION 4 // >>
 # define HERE_DOCUMENT 5 // <<
+
 
 typedef struct s_export
 {
@@ -164,6 +177,10 @@ typedef struct s_var_dollar
 	char	*res_line_key;
 	char	*res_1;
 	char	*buff;
+	char	*res_buff;
+	char	*line;
+	char	*res_line;
+	char	*res_line_remains;
 	
 } t_var_dollar;
 
@@ -206,15 +223,19 @@ char			*old_environment(t_duplicate_env *env);
 char			*ft_strndup(char *s1);
 int				dollar_validation(char *s);
 char			*completion_status(char *str, int last_exit_status);
+void			initialization(t_var_dollar *var);
 				//utils_dollar_1
 char			*before_dollar(char *str);
 char			*key(char *str);
 char			*after(char *str);
-
 				//utils_dollar_2
 char			*variable(char *str);
 char			*remains(char *key);
 int				valid_remains_line(char *str);
+				//utils_dollar_3
+int				key_search_env(t_duplicate_env duplicate_env, t_var_dollar *var);
+void			env_list_key_search(t_duplicate_env **duplicate_env, t_var_dollar *var);
+int				take_key(char *key, int i, t_var_dollar *var);
 
 //			export
 int				validation_equal_variable(char *s);
@@ -238,11 +259,17 @@ void			handle_logic(t_var_export *var, t_duplicate_env **env,
 int				arr_string_element(char *str, t_duplicate_env **env,
 	t_duplicate_env **last);
 
-
-
 	
 /* ------------------------ free_builtins ------------------------ */
-// void			free_dollar(t_var_dollar var);
 
+//				free_dollar
+void			free_dollar(t_var_dollar var);
+
+//				free_export
+void			free_export(t_var_export var);
+
+//				free_exp_env_list
+void			free_env_list(t_duplicate_env *list);
+void			free_exp_list(t_export *list);
 
 #endif

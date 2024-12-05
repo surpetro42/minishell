@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 21:57:25 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/24 22:33:47 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/03 23:08:11 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ int	validation_symble_variable(char *s)
 
 	i = 0;
 	len = ft_strlen(s) - 1;
-	printf("validation_symble_variable == %s\n", s);
 	if ((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' && s[i] <= 'Z')
 		|| s[i] == '_' )
 	{

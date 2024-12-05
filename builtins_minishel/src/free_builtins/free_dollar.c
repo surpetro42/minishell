@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/16 21:26:22 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/21 19:44:04 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/03 16:59:58 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,4 +26,11 @@ void free_dollar(t_var_dollar var)
         free(var.res_line_key);
     if (var.buff)
         free(var.buff);
+    if (var.res_line)
+        free(var.res_line);
+    if (var.res_line_remains)
+        free(var.res_line_remains);
+    if (var.res_buff)
+    if (var.line)
+        free(var.line);
 }
