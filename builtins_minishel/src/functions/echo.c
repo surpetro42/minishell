@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/23 17:37:10 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/22 20:59:58 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/09 22:50:08 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,29 +44,31 @@ void	part_new_line(char **argv, int i, int l)
 
 int	end_new_line(char **argv)
 {
-	int i = 0;
-	int l;
+	int	i;
+	int	l;
+
+	i = 0;
 	while (argv[i])
 	{
 		l = 1;
-		if(argv[i][0] == '-')
+		if (argv[i][0] == '-')
 			while (argv[i][l] == 'n')
 				l++;
 		if (argv[i][l] >= 32 && argv[i][l] != 'n')
-			return i;
+			return (i);
 		else
-		 	i++;
+			i++;
 	}
-	return i;
+	return (i);
 }
 
-void	echo(char **argv, utils_t *utils)
+void	echo(char **argv, t_utils *utils)
 {
-	(void)utils;
 	int	i;
 
+	(void)utils;
 	i = 1;
-	if(argv[1])
+	if (argv[1])
 	{
 		if ((argv[1][0] == '-' && argv[1][1] == 'n'))
 		{

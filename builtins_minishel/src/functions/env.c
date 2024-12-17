@@ -6,21 +6,20 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 23:06:39 by surpetro          #+#    #+#             */
-/*   Updated: 2024/11/20 17:12:44 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/09 22:50:29 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../minishel.h"
 
-void	env_print(utils_t *utils)
+void	env_print(t_utils *utils)
 {
 	t_duplicate_env	*start;
-	
+
 	start = utils->shell->duplicate_env;
 	while (utils->shell->duplicate_env)
 	{
-		if (ft_strlen(utils->shell->duplicate_env->value) != 0
-			&& utils->shell->duplicate_env->value != NULL
+		if (utils->shell->duplicate_env->value != NULL
 			&& utils->shell->duplicate_env->type != 0)
 		{
 			if (utils->shell->duplicate_env->key)

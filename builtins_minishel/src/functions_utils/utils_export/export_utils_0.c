@@ -6,7 +6,7 @@
 /*   By: surpetro <surpetro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 21:57:25 by surpetro          #+#    #+#             */
-/*   Updated: 2024/12/03 23:08:11 by surpetro         ###   ########.fr       */
+/*   Updated: 2024/12/10 05:24:04 by surpetro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,11 @@ int	validation_symble_variable(char *s)
 			if (!((s[i] >= 'a' && s[i] <= 'z')
 					|| (s[i] >= 'A' && s[i] <= 'Z')
 					|| (s[i] >= '0' && s[i] <= '9') || s[i] == '_'))
-				return (0); 
+				return (0);
 		}
 	}
 	else
-	{
-		printf("minishell: expoer: command not found\n");
 		return (0);
-	}
 	return (1);
 }
 
@@ -81,4 +78,20 @@ int	validation_equal_variable(char *s)
 		i++;
 	}
 	return (0);
+}
+
+void	new_nudd_list(t_var_export *var, int len_equally)
+{
+	if (var->buff_vlaue && var->buff_vlaue[0])
+		var->new_node = create_new_node(ft_substr
+				(var->buff_key, 0, var->findel - 1),
+				ft_strdup(var->buff_vlaue), 1);
+	else if (var->buff_key[len_equally] == '=')
+		var->new_node = create_new_node(ft_substr
+				(var->buff_key, 0, var->findel - 1),
+				"", 1);
+	else
+		var->new_node = create_new_node(ft_substr
+				(var->buff_key, 0, var->findel - 1),
+				NULL, 1);
 }
